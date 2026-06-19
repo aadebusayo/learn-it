@@ -36,11 +36,23 @@ export interface LearningPathStep {
   estimatedMinutes: number;
 }
 
+export interface SourceSummary {
+  id: string;
+  title: string;
+  filename: string;
+  content_type: string;
+  summary: string;
+  created_at?: string;
+  concept_count: number;
+  chunk_count: number;
+}
+
 export interface DashboardSnapshot {
   understandingScore: number;
   conceptsMasteredThisWeek: number;
   retentionRate: number;
   implementationCompletion: number;
+  activeSource?: SourceSummary;
   concepts: ConceptNode[];
   edges: ConceptEdge[];
   path: LearningPathStep[];
