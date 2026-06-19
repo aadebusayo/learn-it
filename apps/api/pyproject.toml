@@ -1,0 +1,23 @@
+[project]
+name = "learn-it-api"
+version = "0.1.0"
+description = "FastAPI orchestration service for Learn It."
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115.5",
+  "uvicorn[standard]>=0.32.0",
+  "pydantic-settings>=2.6.1",
+  "learn-it-agents",
+  "learn-it-graph",
+]
+
+[tool.uv.sources]
+learn-it-agents = { path = "../../packages/agents", editable = true }
+learn-it-graph = { path = "../../packages/graph", editable = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
