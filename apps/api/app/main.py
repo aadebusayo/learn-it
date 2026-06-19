@@ -1,11 +1,15 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.schemas import DiagnoseRequest, DiagnoseResponse, HintRequest, HintResponse
+from app.schemas import DiagnoseRequest, DiagnoseResponse, HintRequest, HintResponse, IngestionResponse, SourceDetail, SourceSummary
+from app.services.ingestion_service import IngestionService
 from app.services.learning_loop import diagnose, get_constitution, get_dashboard_snapshot, hint
+from app.services.repository import LearningRepository
 
 settings = get_settings()
+repository = LearningRepository(settings.sqlite_path)
+ingestion_service = IngestionService(repository)
 
 app = FastAPI(
     title="Learn It API",
@@ -34,7 +38,43 @@ def constitution() -> dict:
 
 @app.get("/dashboard")
 def dashboard() -> dict:
-    return get_dashboard_snapshot()
+    return get_dashboard_snapshot(repository)
+
+
+@app.get("/sources", response_model=list[SourceSummary])
+def list_sources() -> list[dict]:
+    return repository.list_sources()
+
+
+@app.get("/sources/{source_id}", response_model=SourceDetail)
+def get_source(source_id: str) -> dict:
+    source = repository.get_source(source_id)
+    if not source:
+        raise HTTPException(status_code=404, detail="Source not found")
+    return source
+
+
+@app.post("/sources", response_model=IngestionResponse)
+async def upload_source(file: UploadFile = File(...)) -> IngestionResponse:
+    data = await file.read()
+    if not data:
+        raise HTTPException(status_code=400, detail="Uploaded source is empty")
+
+    result = ingestion_service.ingest(file.filename or "untitled.txt", file.content_type, data)
+    saved = repository.get_source(result.source_id)
+    if not saved:
+        raise HTTPException(status_code=500, detail="Source ingestion did not persist")
+
+    source = saved["source"]
+    source["concept_count"] = len(saved["concepts"])
+    source["chunk_count"] = len(saved["chunks"])
+    return IngestionResponse(
+        source=SourceSummary(**source),
+        chunks_created=len(saved["chunks"]),
+        concepts_created=len(saved["concepts"]),
+        edges_created=len(saved["edges"]),
+        path_steps_created=len(saved["path"]),
+    )
 
 
 @app.post("/diagnose", response_model=DiagnoseResponse)

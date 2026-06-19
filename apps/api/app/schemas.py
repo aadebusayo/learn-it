@@ -1,6 +1,33 @@
 from pydantic import BaseModel, Field
 
 
+class SourceSummary(BaseModel):
+    id: str
+    title: str
+    filename: str
+    content_type: str
+    summary: str
+    created_at: str | None = None
+    concept_count: int = 0
+    chunk_count: int = 0
+
+
+class SourceDetail(BaseModel):
+    source: dict
+    chunks: list[dict]
+    concepts: list[dict]
+    edges: list[dict]
+    path: list[dict]
+
+
+class IngestionResponse(BaseModel):
+    source: SourceSummary
+    chunks_created: int
+    concepts_created: int
+    edges_created: int
+    path_steps_created: int
+
+
 class DiagnoseRequest(BaseModel):
     concept_id: str
     learner_claim: str = Field(min_length=1)

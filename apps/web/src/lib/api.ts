@@ -1,4 +1,4 @@
-import type { ConceptEdge, ConceptNode, DashboardSnapshot, LearningPathStep, SourceSummary } from "@learn-it/shared";
+import type { ConceptEdge, ConceptNode, DashboardSnapshot, LearningPathStep } from "@learn-it/shared";
 import { sampleDashboard } from "./sample-dashboard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
@@ -32,7 +32,22 @@ type ApiDashboard = {
   path: ApiPathStep[];
 };
 
-export async function getDashboard(): Promise<DashboardSnapshot> {
+export type SourceSummary = {
+  id: string;
+  title: string;
+  filename: string;
+  content_type: string;
+  summary: string;
+  created_at?: string;
+  concept_count: number;
+  chunk_count: number;
+};
+
+export type LiveDashboardSnapshot = DashboardSnapshot & {
+  activeSource?: SourceSummary;
+};
+
+export async function getDashboard(): Promise<LiveDashboardSnapshot> {
   try {
     const response = await fetch(`${API_URL}/dashboard`, { cache: "no-store" });
     if (!response.ok) {
@@ -61,7 +76,7 @@ export function getApiUrl(): string {
   return API_URL;
 }
 
-function mapDashboard(payload: ApiDashboard): DashboardSnapshot {
+function mapDashboard(payload: ApiDashboard): LiveDashboardSnapshot {
   return {
     understandingScore: payload.understanding_score,
     conceptsMasteredThisWeek: payload.concepts_mastered_this_week,

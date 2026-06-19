@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     neo4j_user: str = "neo4j"
     neo4j_password: str = "learn_it_graph"
     qdrant_url: str = "http://localhost:6333"
+    sqlite_path: str = ".data/learn_it.sqlite3"
     llm_provider: str = "placeholder"
     llm_model: str = "placeholder"
 

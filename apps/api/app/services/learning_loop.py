@@ -2,6 +2,7 @@ from learning_agents import LearningConstitution, route_agent
 from learning_graph.models import sample_attention_graph, sample_learning_path
 
 from app.schemas import DiagnoseRequest, DiagnoseResponse, HintRequest, HintResponse
+from app.services.repository import LearningRepository
 
 
 HINTS = {
@@ -16,7 +17,12 @@ def get_constitution() -> LearningConstitution:
     return LearningConstitution()
 
 
-def get_dashboard_snapshot() -> dict:
+def get_dashboard_snapshot(repository: LearningRepository | None = None) -> dict:
+    if repository:
+        persisted_snapshot = repository.dashboard_snapshot()
+        if persisted_snapshot:
+            return persisted_snapshot
+
     graph = sample_attention_graph()
     return {
         "understanding_score": 67,

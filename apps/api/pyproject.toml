@@ -5,15 +5,18 @@ description = "FastAPI orchestration service for Learn It."
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.115.5",
+  "python-multipart>=0.0.20",
   "uvicorn[standard]>=0.32.0",
   "pydantic-settings>=2.6.1",
   "learn-it-agents",
   "learn-it-graph",
+  "learn-it-ingestion",
 ]
 
 [tool.uv.sources]
 learn-it-agents = { path = "../../packages/agents", editable = true }
 learn-it-graph = { path = "../../packages/graph", editable = true }
+learn-it-ingestion = { path = "../../packages/ingestion", editable = true }
 
 [build-system]
 requires = ["hatchling"]

@@ -11,5 +11,7 @@ __pycache__/
 .env
 .env.local
 *.pyc
+*.tsbuildinfo
+.data/
 .DS_Store
 .vscode/settings.local.json

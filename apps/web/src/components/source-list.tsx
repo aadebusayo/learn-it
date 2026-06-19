@@ -1,4 +1,4 @@
-import type { SourceSummary } from "@learn-it/shared";
+import type { SourceSummary } from "@/lib/api";
 import { Files } from "lucide-react";
 
 interface SourceListProps {

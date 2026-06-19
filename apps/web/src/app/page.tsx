@@ -1,10 +1,14 @@
 import { ConceptGraph } from "@/components/concept-graph";
 import { LearningPath } from "@/components/learning-path";
 import { MetricStrip } from "@/components/metric-strip";
-import { sampleDashboard } from "@/lib/sample-dashboard";
-import { BookOpen, FileUp, SearchCheck } from "lucide-react";
+import { SourceList } from "@/components/source-list";
+import { SourceUpload } from "@/components/source-upload";
+import { getDashboard, getSources } from "@/lib/api";
+import { BookOpen, SearchCheck } from "lucide-react";
 
-export default function Home() {
+export default async function Home() {
+  const [dashboard, sources] = await Promise.all([getDashboard(), getSources()]);
+
   return (
     <main className="min-h-screen bg-[#fbfaf6] text-ink">
       <header className="border-b border-line bg-white">
@@ -17,10 +21,7 @@ export default function Home() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button className="inline-flex items-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-medium text-white" type="button">
-              <FileUp className="h-4 w-4" aria-hidden="true" />
-              Upload source
-            </button>
+            <SourceUpload />
             <button className="inline-flex items-center gap-2 rounded-md border border-line bg-white px-4 py-2 text-sm font-medium text-ink" type="button">
               <SearchCheck className="h-4 w-4" aria-hidden="true" />
               Run diagnosis
@@ -31,10 +32,10 @@ export default function Home() {
 
       <div className="mx-auto grid max-w-7xl gap-6 px-5 py-6">
         <MetricStrip
-          understandingScore={sampleDashboard.understandingScore}
-          conceptsMasteredThisWeek={sampleDashboard.conceptsMasteredThisWeek}
-          retentionRate={sampleDashboard.retentionRate}
-          implementationCompletion={sampleDashboard.implementationCompletion}
+          understandingScore={dashboard.understandingScore}
+          conceptsMasteredThisWeek={dashboard.conceptsMasteredThisWeek}
+          retentionRate={dashboard.retentionRate}
+          implementationCompletion={dashboard.implementationCompletion}
         />
 
         <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_390px]">
@@ -42,15 +43,17 @@ export default function Home() {
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-medium uppercase tracking-normal text-clay">Knowledge graph</p>
-                <h2 className="mt-1 text-xl font-semibold text-ink">Attention prerequisites</h2>
+                <h2 className="mt-1 text-xl font-semibold text-ink">{dashboard.activeSource?.title ?? "Attention prerequisites"}</h2>
               </div>
               <BookOpen className="h-5 w-5 text-sea" aria-hidden="true" />
             </div>
-            <ConceptGraph concepts={sampleDashboard.concepts} edges={sampleDashboard.edges} />
+            <ConceptGraph concepts={dashboard.concepts} edges={dashboard.edges} />
           </div>
 
-          <LearningPath steps={sampleDashboard.path} />
+          <LearningPath steps={dashboard.path} />
         </section>
+
+        <SourceList sources={sources} />
       </div>
     </main>
   );
